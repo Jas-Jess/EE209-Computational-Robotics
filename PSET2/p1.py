@@ -26,7 +26,7 @@ class GridWorld2D():
 
 		# Randomly chooses intial state (x, y, h)
 		if initial_state == None:
-			self.s = list(self.S[random.randint(0,len(self.S))])
+			self.s = list(self.S[random.randint(0,len(self.S)-1)])
 		else:
 			self.s = list(initial_state)
 
@@ -48,7 +48,7 @@ class GridWorld2D():
 		'''
 			Robot randomly picks an action
 		'''
-		self.__action(self.A[random.randint(0,len(self.A))])
+		self.__action(self.A[random.randint(0,len(self.A)-1)])
 		return
 
 
@@ -58,19 +58,32 @@ class GridWorld2D():
 		if a[0] == 'no action' and s == s_next:
 			return(p_sa) 
 
-		p_sa = 0
-		# if movement is greater than two, then probability will be zero
-		if abs(s[0] - s_next[0]) > 1 or abs(s[1] - s_next[1]) > 1:
-			return(p_sa)
-		# if you want the state to not be in the bounds, then probability will be zero
-		if s_next[0] < 0 or s_next[0] >= self.L or s_next[1] < 0 or s_next[1] >= self.W or !(s_next[2] in H):
-			return(p_sa)
-		# if you want the robot to rotate anything greater than 2 rotation (accounting for error), then prob will be zero
-		r, l = __count_rotation_amount(s[2],s_next[2])
-		if r > 2 and l > 2:
-			return(p_sa)
+		# create possible state probability according to your action and state
+		# There is 1-2*Pe chance that the robot does the correct move/rotation
+		x,y,_ = self.__move(a[0], s)
+		h = self.__rotate(a[1], s[2])
 
+		if s_next == list([x, y, h]): return (1.0 - 2.0*Pe)
 
+		# There is Pe chance that the robot moves right first
+		h = self.__rotate('right', s[2])
+		x,y,_ = self.__move(a[0], list([s[0], s[1], h]))
+		h = self.__rotate(a[1], h)
+
+		if s_next == list([x, y, h]): return Pe
+
+		# There is Pe chance that the robot moves left first
+		h = self.__rotate('left', s[2])
+		x,y,_ = self.__move(a[0], list([s[0], s[1], h]))
+		h = self.__rotate(a[1], h)
+
+		if s_next == list([x, y, h]): return Pe
+
+		# Any other state will be zero
+		return 0
+
+	def next_state_w_probility(self, Pe, s, a):
+		
 
 
 
@@ -105,21 +118,22 @@ class GridWorld2D():
 		first_action = np.random.choice(np.array(['movement','right', 'left']), 1, p = [1.0-2.0*self.Pe, self.Pe, self.Pe])
 
 		if first_action != 'movement': 
-			self.__rotate(first_action)
+			self.s[2] = self.__rotate(first_action)
 
-		self.__move(a[0])
-		self.__rotate(a[1])
+		self.s = list(self.__move(a[0]))
+		self.s[2] = self.__rotate(a[1])
+
 
 		return
 
 
-	def __rotate(self,a):
+	def __rotate(self,a, h = None):
 		'''
 			PRIVATE FUNCTION
 				Rotates the heading
 		'''
-
-		h = self.s[2]
+		if h == None:
+			h = self.s[2]
 
 		if a == 'right':
 			h += 1
@@ -133,15 +147,17 @@ class GridWorld2D():
 			if h < 0:
 				h = 11
 
-		self.s[2] = h
-		return
+		return h
 
-	def __move(self,a):
+	def __move(self,a, s = None):
 		'''
 			PRIVATE FCN
 				moves foward or backward
 		'''
-		x, y, h = self.s
+		if s == None:
+			x, y, h = self.s
+		else:
+			x, y, h = s
 
 		if a == 'forward':
 			if h in [2,3,4]:
@@ -173,8 +189,8 @@ class GridWorld2D():
 		elif y < 0:
 			y = 0
 
-		self.s = list([x, y, h])
-		return
+		
+		return [x, y, h]
 
 	def __count_rotation_amount(self, h, h_next):
 		'''
