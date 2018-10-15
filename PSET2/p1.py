@@ -82,9 +82,21 @@ class GridWorld2D():
 		# Any other state will be zero
 		return 0
 
-	def next_state_w_probility(self, Pe, s, a):
-		
+	def get_next_state(self, Pe, s, a):
+		# if no action is taken, staying in current state is 100%
+		if a[0] == 'no action':
+			return(s)
 
+		# different chances of which movement first
+		first_action = np.random.choice(np.array(['movement','right', 'left']), 1, p = [1.0-2.0*Pe, Pe, Pe])
+
+		if first_action != 'movement': 
+			s[2] = self.__rotate(first_action, s[2])
+
+		s = list(self.__move(a[0], s))
+		s[2] = self.__rotate(a[1], s[2])
+
+		return s
 
 
 	'''
@@ -191,22 +203,6 @@ class GridWorld2D():
 
 		
 		return [x, y, h]
-
-	def __count_rotation_amount(self, h, h_next):
-		'''
-			Private fcn
-				Inputs: h and h_next
-				outputs: how much rotation to the right and how much rotation to the left 
-		'''
-		if h_next > h:
-			r = h_next - h
-			l = 12 - r
-
-		else:
-			l = h - h_next
-			r = 12 - r 
-
-		return r, l
 
 
 
