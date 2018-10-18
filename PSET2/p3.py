@@ -97,6 +97,7 @@ class PolicyIteration():
 		h_angle_dict = { 0: 90, 1:60, 2:30, 3:0, 4:330, 5:300, 6:270, 7:240, 8:210, 9:180, 10:150, 11:120  }
 		def delta_coord(angle):
 		    '''
+		    OBJECTIVE: Finds 
 		    angle - Angle you want your end point at in degrees.
 		    '''
 		    length = 0.45
@@ -122,7 +123,6 @@ class PolicyIteration():
 
 		while(not(reward)):
 			s_index = np.where((S == s).all(axis=1))
-			print s_index
 			a = policy[s_index[0][0]]
 			s = self.gw.get_next_state(Pe, s, a)
 
@@ -161,7 +161,7 @@ class PolicyIteration():
 
 
 
-
+	def solve_optimal_policy(self, Pe = 0, discount = 0.99):
 
 
 
