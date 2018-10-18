@@ -82,6 +82,47 @@ class GridWorld2D():
 		# Any other state will be zero
 		return 0
 
+	def non_zero_prob(self, Pe, s, a):
+		'''
+			returns next state with probility
+		'''
+		p_sa = 1
+		# if no action is taken, staying in current state is 100%
+		if a[0] == 'no action':
+			return [s[0], s[1], s[2], p_sa]
+
+		# create possible state probability according to your action and state
+		# There is 1-2*Pe chance that the robot does the correct move/rotation
+		T = []
+
+		x,y,_ = self.__move(a[0], s)
+		h = self.__rotate(a[1], s[2])
+
+		T.append([x, y, h, 1.0 - 2.0*Pe])
+		
+		if Pe == 0:
+			return T
+
+		# There is Pe chance that the robot moves right first
+		h = self.__rotate('right', s[2])
+		x,y,_ = self.__move(a[0], list([s[0], s[1], h]))
+		h = self.__rotate(a[1], h)
+
+		T.append([x, y, h, Pe])
+
+		# There is Pe chance that the robot moves left first
+		h = self.__rotate('left', s[2])
+		x,y,_ = self.__move(a[0], list([s[0], s[1], h]))
+		h = self.__rotate(a[1], h)
+
+		T.append([x, y, h, Pe])
+
+		return T
+
+
+
+
+
 	def get_next_state(self, Pe, s, a):
 		# if no action is taken, staying in current state is 100%
 		if a[0] == 'no action':

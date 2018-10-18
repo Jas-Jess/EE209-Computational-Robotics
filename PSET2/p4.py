@@ -15,6 +15,8 @@ class ValueIteration():
 		self.rg = RewardGrid()
 
 		self.policy = []
+		self.V = []
+
 		# END OF INIT FUNCTION
 
 
@@ -52,7 +54,6 @@ class ValueIteration():
 		while(not(reward)):
 			s_index = np.where((S == s).all(axis=1))
 			a = policy[s_index[0][0]]
-			print(a)
 			s = self.gw.get_next_state(Pe, s, a)
 
 			X.append(s[0])
@@ -88,6 +89,24 @@ class ValueIteration():
 		# Gridlines based on minor ticks
 		ax.grid(which='minor', linestyle='-', linewidth=2)
 
+	def preallocate_Tprob(self, Pe):
+		'''
+			This is a preallocation for the transition matrix for all non-zero probs
+			This is to reduce computational time
+		'''
+
+		self.T = {}
+		for i in range(len(self.gw.S)):
+			s = self.gw.S[i]
+			t = []
+			for a in self.gw.A:
+				t.append([a, self.gw.non_zero_prob(Pe, s, a)])
+
+
+			self.T[i] = t
+
+		return
+
 	def solve_optimal_policy(self, Pe = 0, discount = 0.99):
 		'''
 			Function used to solve for the optimal policy 
@@ -95,7 +114,36 @@ class ValueIteration():
 			discount will be less than one
 		'''
 		self.gw.Pe = Pe
+		self.preallocate_Tprob(Pe)
+
+		def evaluation_fcn(s,a, Pe, V):
+			'''
+				evaluation function for value iteration and policy optimization
+			'''
+			sum_ = 0
+			S = np.array(self.gw.S)
+
+			if not(isinstance(a[0], list)):
+				next_s = a[0:3]
+				prob = a[3]
+				s_index = np.where((S == next_s).all(axis=1))
+				sum_ += prob*(self.rg.get_reward(s) +discount*V[s_index[0][0]])
+				return sum_
+
+
+			for a_curr in a:
+
+				next_s = a_curr[0:3]
+				prob = a_curr[3]
+				s_index = np.where((S == next_s).all(axis=1))
+				sum_ += prob*(self.rg.get_reward(s) +discount*V[s_index[0][0]])
+			# print(sum_)
+			return sum_
+
 		def value_iteration():
+			'''
+				Value iteration until it converges
+			'''
 			V1 = [0 for i in range(len(self.gw.S))]
 			epsilon = 0.001
 			while True: 
@@ -104,39 +152,44 @@ class ValueIteration():
 
 				for i in range(len(self.gw.S)):
 					s = self.gw.S[i]
-					max_a = V1[i]
-					for a in self.gw.A:
-						V1[i] = sum([(self.rg.get_reward(s) + self.gw.transition_probability(Pe, s, a, self.gw.S[j])*(discount*V1[j])) for j in range(len(self.gw.S))])
-						if max_a > V1[i]: V1[i] = max_a
-						else: max_a = V1[i]
+					a_sum = []
+					for a in (self.T[i]):
+						a_sum.append(evaluation_fcn(s,a[1],Pe, V1))
+					
+					V1[i] = max(a_sum)
 
 					delta = max(delta, abs(V1[i] - V0[i]))
+
 
 				if delta < epsilon * (1 - discount)/discount:
 					return V0
 
-
 		def policy_opt(V):
+			'''
+				Function to get optimal policy with input V
+			'''
 			self.policy = []
+			
+
 			for i in range(len(self.gw.S)):
 				s = self.gw.S[i]
+				a_sum = 0
 				max_a_val = None 
 				max_a = None
-
-				for a in self.gw.A:
-					V[i] = sum([(self.rg.get_reward(s) + self.gw.transition_probability(Pe, s, a, self.gw.S[j])*(discount*V[j])) for j in range(len(self.gw.S))])
-					if max_a_val < V[i] or max_a_val == None: 
-						max_a_val = V[i]
-						max_a = a
-						
+				for a in (self.T[i]):
+					a_sum = (evaluation_fcn(s,a[1],Pe, V))
+					if max_a_val < a_sum or max_a_val == None: 
+						max_a_val = a_sum
+						max_a = a[0]
+					
 				self.policy.append(max_a)
 
 
 			return
 
 
-		V = value_iteration()
-		policy_opt(V)
+		self.V = value_iteration()
+		policy_opt(self.V)
 
 		return
 
