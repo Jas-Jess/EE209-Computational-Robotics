@@ -6,9 +6,9 @@ class GridWorld2D():
 	# Headings
 	H = list(range(0,12))
 	# Action space
-	A = [['foward', 'right'], ['foward', 'left'], 
+	A = [['forward', 'right'], ['forward', 'left'], 
 	     ['backward', 'right'], ['backward', 'left'], 
-	     ['foward', 'no rotation'], ['backward', 'no rotation'],
+	     ['forward', 'no rotation'], ['backward', 'no rotation'],
 	     ['no action', '']]
 
 	'''
@@ -34,7 +34,7 @@ class GridWorld2D():
 		''' 
 			This function takes action and updates current state. 
 			Inputs:
-			 	movement = 'foward', 'backward', 'no action' 
+			 	movement = 'forward', 'backward', 'no action' 
 			 	rotation = 'right', 'left', 'no rotation'
 
 		'''
@@ -164,7 +164,7 @@ class GridWorld2D():
 	def __move(self,a, s = None):
 		'''
 			PRIVATE FCN
-				moves foward or backward
+				moves forward or backward
 		'''
 		if s == None:
 			x, y, h = self.s

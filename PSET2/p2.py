@@ -18,6 +18,9 @@ class RewardGrid():
 		# Flip horizontally, so coordinate points can be referenced easier
 		self.grid = np.flip(self.grid, 0)
 
+		# Goal state to get reward
+		self.goal = [3, 4, None]
+
 	def get_reward(self, s):
 		return(self.grid[s[1], s[0]])
 
