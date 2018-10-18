@@ -6,10 +6,10 @@ import numpy as np
 	This is the policy Iteration class specifically for the gridworld  
 	and reward grid described in PSET2 Problem 1 & 2
 '''
-class PolicyIteratoin():
+class PolicyIteration():
 	
 	def __init__(self):
-		self.gw = GridWorld(6,6)
+		self.gw = GridWorld2D(6,6)
 		self.rg = RewardGrid()
 
 		def get_initial_policy():
@@ -25,22 +25,22 @@ class PolicyIteratoin():
 
 
 			for i in range(len(self.gw.S)):
-				x = self.gw.S[i, 0]
-				y = self.gw.S[i, 1]
-				h = self.gw.S[i, 2]
+				x = self.gw.S[i][0]
+				y = self.gw.S[i][1]
+				h = self.gw.S[i][2]
 
 				a = [] # Action list
 
 				# First check if (x, y is in reward spot)
 				if x == goal_x and y == goal_y:
-					policy.append[['no action', '']]
+					policy.append(['no action', ''])
 					continue
 
 				x_dir = goal_x - x
 				y_dir = goal_y - y
 
 							
-				if h in [2,3,4, 8,9.10]:
+				if h in [2,3,4, 8,9,10]:
 					# Move left if direction is negative
 					if x_dir < 0:
 						if h in [2,3,4]: a.append('backward')
@@ -73,7 +73,7 @@ class PolicyIteratoin():
 					# No rotation if we are in line with reward
 					if x_dir == 0:
 						a.append('no rotation')
-					# rotate closer to other headings to move up or down
+					# rotate closer to other headings to move right or left
 					else:
 						if h in [11,5]:
 							a.append('left')

@@ -16,7 +16,7 @@ class GridWorld2D():
 	 PUBLIC FUNCTIONS
 	 *****************
 	'''
-	def __init__(self, L, W, Pe, initial_state = None):
+	def __init__(self, L, W, Pe = 0, initial_state = None):
 		self.L = L
 		self.W = W
 		self.Pe = Pe
