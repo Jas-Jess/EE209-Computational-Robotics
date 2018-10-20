@@ -167,8 +167,16 @@ class policyGrid():
 		'''
 		policy = np.zeros(len(self.gw.S))
 		for i in range(1,len(self.gw.S)):
-			policy[i] = self.gw.probability(self.gw.S[i],self.policy[i],Pe,self.gw.getNextState(Pe,self.gw.S[i],self.policy[i])) * get_policy_eval(self.policy[i],Pe,lamda)
+			policy[i] = np.argmax(self.gw.probability(self.gw.S[i],self.policy[i],Pe,self.gw.getNextState(Pe,self.gw.S[i],self.policy[i])) * get_policy_eval(self.policy[i],Pe,lamda))
 
+		return policy
+
+
+	#3e
+	def policy_iteration(self,):
+		'''
+			Computes policy iteratoin. Returns optimal policy pi^* with optimal value V^*
+		'''
 
 # get_policy_eval(p,d,Pe,lamda)
 # plot_trajectory(s, policy = None, Pe= 0)
