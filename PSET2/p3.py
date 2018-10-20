@@ -66,27 +66,27 @@ class policyGrid():
 			self.policy.append(get_action_frm_state(self.gw.S[i],(3,4)))
 
 
-	def get_policy_eval(self,p,d,Pe,lamda):
-		'''
+	def get_policy_eval(self,policy,Pe,lamda):
+		''' 3d
 			Compute the policy evaluation of policy pi.
 			Inputs: array of policy pi; discount
-			Return: array of v = V^pi(s), indexed by state S
+			Return: VALUE array of v = V^pi(s), indexed by state S
 
 			V^pi(s) is initially zero and continuously updated until it converges.
 		'''
-		self.policy_eval = np.zeros(len(self.gw.S))
-		thresh_matrix = np.array(self.policy_eval)
+		policy_eval = np.zeros(len(self.gw.S))
+		thresh_matrix = np.array(policy_eval)
 		thresh = 0.0
 		
 		while thresh < 1.0:
-			thresh_matrix = np.array(self.policy_eval)
+			thresh_matrix = np.array(policy_eval)
 			for i in range(len(self.gw.S)):
-				self.policy_eval[i] += (self.gw.probability(self.gw.S[i],self.policy[i],0.1,self.gw.getNextState(0.1,self.gw.S[i],self.policy[i]))*(reward.get_reward(gw.S[i]) + lamda*self.olicy_eval[i]))
+				policy_eval[i] += (self.gw.probability(self.gw.S[i],policy[i],Pe,self.gw.getNextState(Pe,self.gw.S[i],policy[i]))*(reward.get_reward(gw.S[i]) + lamda*self.policy_eval[i]))
 
-			thresh = abs(sum(self.policy_eval - thresh_matrix)/len(self.gw.S))
-			# thresh = preprocessing.normalize([self.policy_eval - thresh_matrix])
+			thresh = abs(sum(policy_eval - thresh_matrix)/len(self.gw.S))
+			# thresh = preprocessing.normalize([policy_eval - thresh_matrix])
 
-		return self.policy_eval
+		return policy_eval
 
 
 
@@ -158,6 +158,16 @@ class policyGrid():
 
 		# Gridlines based on minor ticks
 		ax.grid(which='minor', linestyle='-', linewidth=2)
+
+
+	#3f
+	def get_policy(self,v,Pe,lamda):
+		'''
+			Returns matrix of policy, given valve v.
+		'''
+		policy = np.zeros(len(self.gw.S))
+		for i in range(1,len(self.gw.S)):
+			policy[i] = self.gw.probability(self.gw.S[i],self.policy[i],Pe,self.gw.getNextState(Pe,self.gw.S[i],self.policy[i])) * get_policy_eval(self.policy[i],Pe,lamda)
 
 
 # get_policy_eval(p,d,Pe,lamda)
