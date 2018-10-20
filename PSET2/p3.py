@@ -90,6 +90,7 @@ class PolicyIteration():
 		self.Pe = 0
 		self.policy = get_initial_policy()
 		self.T = []
+		self.past_policy = []
 		self.preallocate_Tprob(self.Pe)
 		# END OF INIT FUNCTION
 
@@ -195,7 +196,7 @@ class PolicyIteration():
 			next_s = a[0:3]
 			prob = a[3]
 			s_index = np.where((S == next_s).all(axis=1))
-			sum_ += prob*(self.rg.get_reward(s) +discount*V[s_index[0][0]])
+			sum_ += prob*(self.rg.get_reward(next_s) +discount*V[s_index[0][0]])
 			return sum_
 
 
@@ -204,7 +205,7 @@ class PolicyIteration():
 			next_s = a_curr[0:3]
 			prob = a_curr[3]
 			s_index = np.where((S == next_s).all(axis=1))
-			sum_ += prob*(self.rg.get_reward(s) +discount*V[s_index[0][0]])
+			sum_ += prob*(self.rg.get_reward(next_s) +discount*V[s_index[0][0]])
 		# print(sum_)
 		return sum_
 
@@ -234,8 +235,32 @@ class PolicyIteration():
 				delta = max(delta, abs(V1[i] - V0[i]))
 
 
-			if delta < epsilon * (1 - discount)/discount:
+			if delta < 2* epsilon * discount/(1 - discount):
 				return V0
+
+	def arg_max(self, s,a, V, discount):
+		'''
+			evaluation function for value iteration and policy optimization
+		'''
+		sum_ = 0
+		S = np.array(self.gw.S)
+
+		if not(isinstance(a[0], list)):
+			next_s = a[0:3]
+			prob = a[3]
+			s_index = np.where((S == next_s).all(axis=1))
+			sum_ += prob*V[s_index[0][0]]
+			return sum_
+
+
+		for a_curr in a:
+
+			next_s = a_curr[0:3]
+			prob = a_curr[3]
+			s_index = np.where((S == next_s).all(axis=1))
+			sum_ += prob*V[s_index[0][0]]
+		# print(sum_)
+		return sum_
 
 	def policy_opt(self, V, discount = 0.99):
 		'''
@@ -250,7 +275,7 @@ class PolicyIteration():
 			max_a_val = None 
 			max_a = None
 			for a in (self.T[i]):
-				a_sum = (self.evaluation_function(s,a[1], V, discount))
+				a_sum = (self.arg_max(s,a[1], V, discount))
 				if max_a_val < a_sum or max_a_val == None: 
 					max_a_val = a_sum
 					max_a = a[0]
@@ -268,13 +293,13 @@ class PolicyIteration():
 		'''
 		self.Pe = Pe
 		self.preallocate_Tprob(self.Pe)
-		while True:
-			past_policy = self.policy_opt
+		for i in range(4):
+			self.past_policy = self.policy
 			V = self.policy_evaluation(discount= discount)
 			self.policy_opt(V, discount)
 			# print V
 			# Detect no change then policy is solved
-			if np.array_equal(past_policy, self.policy):
+			if np.array_equal(self.past_policy, self.policy):
 				return 
 
 
