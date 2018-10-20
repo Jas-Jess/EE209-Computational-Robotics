@@ -91,8 +91,11 @@ class ValueIteration():
 
 	def preallocate_Tprob(self, Pe):
 		'''
-			This is a preallocation for the transition matrix for all non-zero probs
-			This is to reduce computational time
+			This is a preallocation for the transition matrix for all non-zero probs to reduce computational time
+			
+			Output: 
+				T - dictionary indexed by state. In each entry there is [[action], [list of list for all possible next state with probabily]]
+
 		'''
 
 		self.T = {}
@@ -107,7 +110,7 @@ class ValueIteration():
 
 		return
 
-	def solve_optimal_policy(self, Pe = 0, discount = 0.99):
+	def solve_optimal_policy(self, discount = 0.99):
 		'''
 			Function used to solve for the optimal policy 
 			by using value iteration. Also, we will assume
