@@ -237,6 +237,29 @@ class PolicyIteration():
 			if delta < epsilon * (1 - discount)/discount:
 				return V0
 
+	def policy_opt(self, V, discount = 0.99, policy = None):
+		'''
+			Function to get new optimal policy with input V and policy
+		'''
+		self.policy = []
+		
+
+		for i in range(len(self.gw.S)):
+			s = self.gw.S[i]
+			a_sum = 0
+			max_a_val = None 
+			max_a = None
+			for a in (self.T[i]):
+				a_sum = (self.evaluation_function(s,a[1], V, discount))
+				if max_a_val < a_sum or max_a_val == None: 
+					max_a_val = a_sum
+					max_a = a[0]
+				
+			self.policy.append(max_a)
+
+
+		return
+
 
 
 	def solve_optimal_policy(self, Pe = 0, discount = 0.99):
