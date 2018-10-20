@@ -237,9 +237,9 @@ class PolicyIteration():
 			if delta < epsilon * (1 - discount)/discount:
 				return V0
 
-	def policy_opt(self, V, discount = 0.99, policy = None):
+	def policy_opt(self, V, discount = 0.99):
 		'''
-			Function to get new optimal policy with input V and policy
+			Function to get new optimal policy with input V 
 		'''
 		self.policy = []
 		
@@ -263,7 +263,23 @@ class PolicyIteration():
 
 
 	def solve_optimal_policy(self, Pe = 0, discount = 0.99):
-		print('hi')
+		'''
+			Function to solve for optimal policy by Policy Iteration
+		'''
+		self.Pe = Pe
+		self.preallocate_Tprob(self.Pe)
+		while True:
+			past_policy = self.policy_opt
+			V = self.policy_evaluation(discount= discount)
+			self.policy_opt(V, discount)
+			# print V
+			# Detect no change then policy is solved
+			if np.array_equal(past_policy, self.policy):
+				return 
+
+
+
+
 
 
 
