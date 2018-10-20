@@ -85,9 +85,33 @@ class PolicyIteration():
 				policy.append(a)
 
 			return policy
+			# End of initial policy function
 
+		self.Pe = 0
 		self.policy = get_initial_policy()
+		self.T = []
+		self.preallocate_Tprob(self.Pe)
 		# END OF INIT FUNCTION
+
+	def preallocate_Tprob(self, Pe):
+		'''
+			This is a preallocation for the transition matrix for all non-zero probs to reduce computational time
+			
+			Output: 
+				T - dictionary indexed by state. In each entry there is [[action], [list of list for all possible next state with probabily]]
+		'''
+
+		self.T = {}
+		for i in range(len(self.gw.S)):
+			s = self.gw.S[i]
+			t = []
+			for a in self.gw.A:
+				t.append([a, self.gw.non_zero_prob(Pe, s, a)])
+
+
+			self.T[i] = t
+
+		return
 
 
 	def plot_trajectory(self, s, policy = None, Pe= 0):
@@ -158,10 +182,66 @@ class PolicyIteration():
 
 		# Gridlines based on minor ticks
 		ax.grid(which='minor', linestyle='-', linewidth=2)
+		# END OF PLOT TRAJECTORY 
+
+	def evaluation_function(self, s,a, V, discount):
+		'''
+			evaluation function for value iteration and policy optimization
+		'''
+		sum_ = 0
+		S = np.array(self.gw.S)
+
+		if not(isinstance(a[0], list)):
+			next_s = a[0:3]
+			prob = a[3]
+			s_index = np.where((S == next_s).all(axis=1))
+			sum_ += prob*(self.rg.get_reward(s) +discount*V[s_index[0][0]])
+			return sum_
+
+
+		for a_curr in a:
+
+			next_s = a_curr[0:3]
+			prob = a_curr[3]
+			s_index = np.where((S == next_s).all(axis=1))
+			sum_ += prob*(self.rg.get_reward(s) +discount*V[s_index[0][0]])
+		# print(sum_)
+		return sum_
+
+
+	def policy_evaluation(self, policy = None, discount = 0.99):
+		'''
+			Value iteration until it converges
+		'''
+		if policy == None:
+			policy = self.policy
+
+		V1 = [0 for i in range(len(self.gw.S))]
+		epsilon = 0.001
+		while True: 
+			V0 = [i for i in V1]
+			delta = 0 
+
+			for i in range(len(self.gw.S)):
+				s = self.gw.S[i]
+				a_policy = policy[i]
+
+				for a in (self.T[i]):
+					if a[0] == a_policy:
+						V1[i] = self.evaluation_function(s,a[1], V1, discount)
+						break
+
+				delta = max(delta, abs(V1[i] - V0[i]))
+
+
+			if delta < epsilon * (1 - discount)/discount:
+				return V0
 
 
 
 	def solve_optimal_policy(self, Pe = 0, discount = 0.99):
+		print('hi')
+
 
 
 
