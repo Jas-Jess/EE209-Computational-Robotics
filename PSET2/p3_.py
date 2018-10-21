@@ -160,6 +160,8 @@ class PolicyIteration():
 
 			if s[0] == self.rg.goal[0] and s[1] == self.rg.goal[1]:
 				reward = True
+			if a == ['no action', '']:
+				break
 			
 
 		plt.figure(figsize=(8,8))
@@ -218,8 +220,9 @@ class PolicyIteration():
 			policy = self.policy
 
 		V1 = [0 for i in range(len(self.gw.S))]
-		epsilon = 0.01
+		epsilon = 0.00001
 		while True: 
+		# for _ in range(self.H):
 			V0 = [i for i in V1]
 			delta = 0 
 
@@ -238,68 +241,69 @@ class PolicyIteration():
 			if delta < 2* epsilon * discount/(1 - discount):
 				return V0
 
-	def arg_max(self, s,a, V, discount):
-		'''
-			evaluation function for value iteration and policy optimization
-		'''
-		sum_ = 0
+		return V1
+
+	def policy_opt(self, V, discount):
+		policy = []
+
 		S = np.array(self.gw.S)
 
-		if not(isinstance(a[0], list)):
-			next_s = a[0:3]
-			prob = a[3]
-			s_index = np.where((S == next_s).all(axis=1))
-			sum_ += prob*V[s_index[0][0]]
-			return sum_
-
-
-		for a_curr in a:
-
-			next_s = a_curr[0:3]
-			prob = a_curr[3]
-			s_index = np.where((S == next_s).all(axis=1))
-			sum_ += prob*V[s_index[0][0]]
-		# print(sum_)
-		return sum_
-
-	def policy_opt(self, V, discount = 0.99):
-		'''
-			Function to get new optimal policy with input V 
-		'''
-		self.policy = []
-
 		for i in range(len(self.gw.S)):
-			s = self.gw.S[i]
-			a_sum = 0
-			max_a_val = None 
-			max_a = None
+			max_sum = 0
+			max_arg_a = None
+
 			for a in (self.T[i]):
-				a_sum = (self.arg_max(s,a[1], V, discount))
-				if max_a_val < a_sum or max_a_val == None: 
-					max_a_val = a_sum
-					max_a = a[0]
-				
-			self.policy.append(max_a)
+				sum_ = 0
+				if not(isinstance(a[1][0], list)):
+					next_s = a[1][0:3]
+					p_sa = a[1][3]
+					idx = np.where((S==next_s).all(axis=1))[0][0]
+
+					# sum_ = p_sa*V[idx]
+					sum_ = p_sa*(self.rg.get_reward(next_s) +discount*V[idx])
+
+				else:
+					for future_s in a[1]:
+						next_s = future_s[0:3]
+						p_sa = future_s[3]
+						idx = np.where((S==next_s).all(axis=1))[0][0]
+
+						# sum_ += p_sa*V[idx]
+						sum_ += p_sa*(self.rg.get_reward(next_s) +discount*V[idx])
+
+				if sum_ > max_sum or max_arg_a == None:
+					max_arg_a = a[0]
+					max_sum = sum_
+
+			policy.append(max_arg_a)
+
+		return policy
 
 
-		return
+	def solve_optimal_policy(self, policy = None, Pe = 0, discount = 0.99):
+		if policy != None:
+			self.policy = policy
 
-
-
-	def solve_optimal_policy(self, Pe = 0, discount = 0.99):
-		'''
-			Function to solve for optimal policy by Policy Iteration
-		'''
 		self.Pe = Pe
 		self.preallocate_Tprob(self.Pe)
+
 		while True:
-			self.past_policy = self.policy
-			V = self.policy_evaluation(discount= discount)
-			self.policy_opt(V, discount)
-			# print V
+			self.past_policy = [p for p in self.policy]
+
+			V = self.policy_evaluation(policy = self.policy, discount = discount)
+			self.policy = self.policy_opt(V, discount = discount)
+
+			# print''
+			# print ''
+			# # print(self.policy)
+			# print ''
+			# print(self.past_policy)
+
 			# Detect no change then policy is solved
-			if np.array_equal(self.past_policy, self.policy):
+			# print(np.array_equal(np.array(self.past_policy), np.array(self.policy)))
+			if np.array_equal(np.array(self.past_policy), np.array(self.policy)):
 				return 
+
 
 
 

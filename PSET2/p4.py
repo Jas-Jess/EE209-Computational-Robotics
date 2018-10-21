@@ -20,7 +20,7 @@ class ValueIteration():
 		# END OF INIT FUNCTION
 
 
-	def plot_trajectory(self, s, policy = None, Pe= 0):
+	def plot_trajectory(self, s, policy = None, Pe= None):
 		'''
 			Function to plot trajectory given a state
 		'''
@@ -65,6 +65,8 @@ class ValueIteration():
 
 			if s[0] == self.rg.goal[0] and s[1] == self.rg.goal[1]:
 				reward = True
+			if a == ['no action', '']:
+				break
 			
 
 		plt.figure(figsize=(8,8))
@@ -110,7 +112,7 @@ class ValueIteration():
 
 		return
 
-	def solve_optimal_policy(self, discount = 0.99):
+	def solve_optimal_policy(self, discount = 0.99, Pe = 0):
 		'''
 			Function used to solve for the optimal policy 
 			by using value iteration. Also, we will assume
@@ -164,14 +166,48 @@ class ValueIteration():
 					delta = max(delta, abs(V1[i] - V0[i]))
 
 
-				if delta < epsilon * (1 - discount)/discount:
+				if delta < 2* epsilon * discount/(1 - discount):
 					return V0
+
+		# def policy_opt(V, discount):
+		# 	policy = []
+
+		# 	S = np.array(self.gw.S)
+
+		# 	for i in range(len(self.gw.S)):
+		# 		max_sum = 0
+		# 		max_arg_a = None
+
+		# 		for a in (self.T[i]):
+		# 			sum_ = 0
+		# 			if not(isinstance(a[1][0], list)):
+		# 				next_s = a[1][0:3]
+		# 				p_sa = a[1][3]
+		# 				idx = np.where((S==next_s).all(axis=1))[0][0]
+
+		# 				sum_ = p_sa*V[idx]
+
+		# 			else:
+		# 				for future_s in a[1]:
+		# 					next_s = future_s[0:3]
+		# 					p_sa = future_s[3]
+		# 					idx = np.where((S==next_s).all(axis=1))[0][0]
+
+		# 					sum_ += p_sa*V[idx]
+
+		# 			if sum_ > max_sum or max_arg_a == None:
+		# 				max_arg_a = a[0]
+		# 				max_sum = sum_
+
+		# 		policy.append(max_arg_a)
+
+		# 	return policy
 
 		def policy_opt(V):
 			'''
 				Function to get optimal policy with input V
 			'''
-			self.policy = []
+			policy = []
 			
 
 			for i in range(len(self.gw.S)):
@@ -185,14 +221,14 @@ class ValueIteration():
 						max_a_val = a_sum
 						max_a = a[0]
 					
-				self.policy.append(max_a)
+				policy.append(max_a)
 
 
-			return
+			return policy
 
 
 		self.V = value_iteration()
-		policy_opt(self.V)
+		self.policy = policy_opt(self.V)
 
 		return
 
