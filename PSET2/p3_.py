@@ -158,7 +158,7 @@ class PolicyIteration():
 			U.append(u)
 			V.append(v)
 
-			if s[0] == self.rg.goal[0] and s[1] == self.rg.goal[1] and (s[2] in self.rg.goal[2] or self.rg.goal[2] == None):
+			if s[0] == self.rg.goal[0] and s[1] == self.rg.goal[1] and (self.rg.goal[2] == None or s[2] in self.rg.goal[2] ):
 				reward = True
 			if a == ['no action', '']:
 				break
