@@ -26,7 +26,7 @@ class RewardGrid():
 			return(self.grid[s[1], s[0]])
 
 		if s[0] == self.goal[0] and s[1] == self.goal[1]:
-			if s[2] == self.goal[2]: 
+			if s[2] in self.goal[2]: 
 				return(self.grid[s[1], s[0]])
 			else:
 				return 0
@@ -41,18 +41,21 @@ class RewardGrid():
 		self.goal = s
 		return
 
-	def reward_grid_5a(self):
+	def reward_grid_5a(self, grid = None):
 		''' 
 			Different reward grid for 5a
 		'''
-		self.grid =  [
-				 [-100, -100, -100, -100, -100, -100], 
-				 [-100,    0,  -9,   4,   -9, -100],
-				 [-100,    0,  -9,   0,   -9, -100],
-				 [-100,    0,  -9,   0,   -9, -100],
-				 [-100,    0,    0,   0,     0, -100],
-				 [-100, -100, -100, -100, -100, -100]
-				]
+		if grid == None: 
+			self.grid =  [
+					 [-100, -100, -100, -100, -100, -100], 
+					 [-100,    0,  -9,   4,   -9, -100],
+					 [-100,    0,  -9,   0,   -9, -100],
+					 [-100,    0,  -9,   0,   -9, -100],
+					 [-100,    0,    0,   0,     0, -100],
+					 [-100, -100, -100, -100, -100, -100]
+					]
+		else:
+			self.grid = grid
 
 		self.grid = np.array(self.grid)
 		# Flip horizontally, so coordinate points can be referenced easier
