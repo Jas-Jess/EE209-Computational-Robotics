@@ -24,7 +24,7 @@ class RewardGrid():
 	def get_reward(self, s):
 		return(self.grid[s[1], s[0]])
 
-	def reward_grid_5a():
+	def reward_grid_5a(self):
 		''' 
 			Different reward grid for 5a
 		'''
